@@ -1,0 +1,12 @@
+"type": "service_account",
+  "project_id": "buildexpensebot",
+  "private_key_id": "a0e96550eecd42c40a2748f74aa7c6f6cf1f72cf",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCOyJcrFo0Dt6o7\ncfh+vS1PKINhHMkFX35qj6G/WoshAFgLJmR606moKJmrODAoxVWNDyfqVCNBMpgJ\nssViwT5rtE2IipO4cXdNEbBE87xpjcg1qmQYR+cynBNgOojhunSryA6MdmRpHYFn\nTjUgd2zg4yt/315+xORdzr/bUNLYQE78yYG1UsbbxcjSp2AXD1m9qeZGYKVMOPg4\nondQoWzr7D5ta4qhIheFdxWnARpvMepZ0/44sZE2t7s6BgVO54/dFF5Nkk1SazFM\nE94MkxcZ+HYXyQ5tB1phOeR/GrO2VuOYZN4CyUbte49oXzvjmb7ib7PPP3ohMxa/\nPHB2vE7RAgMBAAECggEAAVRxKH9ZoEEM20gsfGPfN6QA5RXX8eEYdUN/KhrSDd78\nrZtoSeF9weLBa3q5g5qyvpk8rzTPXdVGh7IYHwCojTzLsKevmH20OCX6gbTmXTJl\nwh6zIeutsFnA6jIMtJ4DBcx7kAo5qpCMrs6ycC9JPBcPkIMEWeXJcE3QzoO5jVaD\nRAasbgC8XUyrUsbA5LNkxKqK9KUn8/6r4/Rvlt4h5d1tty9+gJYJhebSQ6UiGRYI\nnXjzreIOqg7KRBeK/9TDwjuRrS/NvefOinFz9jJviik0eBOBGZ1BC7bxva1dGwwD\nIaNw6fXZAohMsjVpDhxAJeMZmEfZ1frI4+s7Nj84AQKBgQDHEYcf9oO5RmslKpu/\nui5LUo5L2ulqdJgFKthjAm2kQCf0iAr7yijDUpgqWUCL7eMVy4uJICcdSMrbanLp\nZte4TH5JMI6EHLbYVBVPUAEBUifW0+r2TXkui5uNx/+NCvjEcgpKJHe0Y9b6tVPL\nahtL4iKvF3OdSfnxEnS0lcqYAQKBgQC3nkFF8oAWNcKrOnrafr9lHyl/Ra5/PMG4\nMFTmUKSl+beD/wenXgEReEkbN39BaNlQXRSN3++spg+eWvKvZ5RuTiPRC7kMlZQB\noPH9PytdJs1yxPmsrBSgbFytdm5PPXqnSWnI/XaEr8QP9LKA2US+RzTd51MqmM3s\nNdsD4EY20QKBgQCsB1apZYQhyVvwa2jbAA7fosE7hjtudsGkvYjvzvpnFdYxeJtd\nSi9909ORzT19bx9uB09XOgTzRqOfh9c0Il7LcrczkpWmT5YnTkp4FuA3fwLUoKAN\nJ5hQg+7yUGJkRZYDVbXUqr0Tk7AFSkvWnqRmKE7m1rJfu70V+mgGYugIAQKBgQCu\n9fW+X76a6ykOHVAYyDM5eMMCyfPmu47fIfaT6v2oRVUPSkARw2oDKnmGnI/+VJjV\nkYvXUC1Bdo5lVsXuSyVNIdnRBHmUOybnkmNi6wE35pRXKse5N9MDtZ1tj+62RJ+N\nrU9GO/XlotGQXpqEWgK9yH3gf95oNWfqDrsda2OcMQKBgAgPDyzYABioE5C3cpgY\nGrXDtaRx5WrUvx9cQFR+PYVBalpP8KR5ahQaTxkBMATtIX8iC3K+8nAgvHpQomEc\n5WMbPvaAoKX0lpjik3Re6k7SoicMYn2m3H13spK/n+da8tntymf7O+5uJGWaGDo3\nJh6Cs9Cu93NyBnG3i6SdheOx\n-----END PRIVATE KEY-----\n",
+  "client_email": "expense-bot@buildexpensebot.iam.gserviceaccount.com",
+  "client_id": "103192490426740120578",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/expense-bot%40buildexpensebot.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
