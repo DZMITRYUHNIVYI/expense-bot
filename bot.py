@@ -47,7 +47,7 @@ def main():
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", "8443")),
         url_path=TOKEN,
-        webhook_url=f"https://expense-bot.onrender.com/{TOKEN}"
+        webhook_url=f"https://expense-bot-1.onrender.com/{TOKEN}"
     )
 
     updater.idle()
