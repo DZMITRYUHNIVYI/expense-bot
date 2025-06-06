@@ -1,8 +1,5 @@
-python-telegram-bot==20.7
-gspread
-oauth2client
-PyMuPDF
-google-api-python-client
-google-auth
-google-auth-oauthlib
-google-auth-httplib2
+python-telegram-bot==20.3
+PyMuPDF==1.21.1
+gspread==5.7.2
+google-auth==2.22.0
+google-api-python-client==2.98.0
