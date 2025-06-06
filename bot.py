@@ -37,11 +37,20 @@ def handle_voice(update, context):
 def main():
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
+
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(MessageHandler(Filters.document.pdf, handle_file))
     dp.add_handler(MessageHandler(Filters.voice, handle_voice))
-    updater.start_polling()
+
+    # Важно: запускаем как webhook для Render
+    updater.start_webhook(
+        listen="0.0.0.0",
+        port=int(os.environ.get("PORT", "8443")),
+        url_path=TOKEN,
+        webhook_url=f"https://expense-bot.onrender.com/{TOKEN}"
+    )
+
     updater.idle()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
