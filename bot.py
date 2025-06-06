@@ -1,56 +1,58 @@
-import logging
-import os
-from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
-from utils import process_ticket_file
-from google_utils import extract_file_info, process_voice
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+from utils import process_ticket_file, process_voice
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-def start(update, context):
-    update.message.reply_text("Привет! Отправь файл PDF или голосовое сообщение.")
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Привет! Отправь PDF билет или голосовое сообщение.")
 
-def handle_file(update, context):
-    file = update.message.document or update.message.photo[-1]
-    if not file:
+
+async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    document = update.message.document
+
+    if not document or document.mime_type != "application/pdf":
+        await update.message.reply_text("Пожалуйста, отправьте PDF файл.")
         return
-    file_path = file.get_file().download()
-    logger.info(f"Получен файл: {file_path}")
-    if file.file_path.endswith(".pdf"):
-        result = process_ticket_file(file_path, SPREADSHEET_ID)
-        update.message.reply_text("Файл обработан и добавлен в таблицу." if result else "Ошибка при обработке PDF.")
-    else:
-        update.message.reply_text("Поддерживаются только PDF файлы.")
 
-def handle_voice(update, context):
+    file_obj = await context.bot.get_file(document.file_id)
+    file_path = file_obj.file_path
+
+    result = await process_ticket_file(file_path, SPREADSHEET_ID)
+
+    if result:
+        await update.message.reply_text("Файл обработан и добавлен в таблицу.")
+    else:
+        await update.message.reply_text("Ошибка при обработке файла.")
+
+
+async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     voice = update.message.voice
     if not voice:
         return
-    voice_file = voice.get_file().download()
-    logger.info(f"Получено голосовое сообщение: {voice_file}")
-    result = process_voice(voice_file, SPREADSHEET_ID)
-    update.message.reply_text("Голосовое сообщение обработано." if result else "Ошибка при обработке голосового.")
+
+    voice_file = await voice.get_file()
+    voice_path = voice_file.file_path
+
+    result = await process_voice(voice_path, SPREADSHEET_ID)
+
+    if result:
+        await update.message.reply_text("Голосовое сообщение обработано.")
+    else:
+        await update.message.reply_text("Ошибка при обработке голосового сообщения.")
+
 
 def main():
-    updater = Updater(TOKEN, use_context=True)
-    dp = updater.dispatcher
+    app = ApplicationBuilder().token(TOKEN).build()
 
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.document.pdf, handle_file))
-    dp.add_handler(MessageHandler(Filters.voice, handle_voice))
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.Document.PDF, handle_file))
+    app.add_handler(MessageHandler(filters.VOICE, handle_voice))
 
-    # Webhook для Render — с твоим точным URL
-    updater.start_webhook(
-        listen="0.0.0.0",
-        port=int(os.environ.get("PORT", "10000")),
-        url_path=TOKEN,
-        webhook_url=f"https://expense-bot-1.onrender.com/{TOKEN}"
-    )
+    app.run_polling()
 
-    updater.idle()
 
 if __name__ == "__main__":
     main()
