@@ -42,10 +42,10 @@ def main():
     dp.add_handler(MessageHandler(Filters.document.pdf, handle_file))
     dp.add_handler(MessageHandler(Filters.voice, handle_voice))
 
-    # Важно: запускаем как webhook для Render
+    # Webhook для Render — с твоим точным URL
     updater.start_webhook(
         listen="0.0.0.0",
-        port=int(os.environ.get("PORT", "8443")),
+        port=int(os.environ.get("PORT", "10000")),
         url_path=TOKEN,
         webhook_url=f"https://expense-bot-1.onrender.com/{TOKEN}"
     )
