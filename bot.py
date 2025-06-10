@@ -1,34 +1,57 @@
-import logging
-from telegram import Update
-from telegram.ext import ApplicationBuilder, MessageHandler, CommandHandler, filters, ContextTypes
-from utils import process_ticket_file
 import os
+import logging
+from flask import Flask, request
+from telegram import Bot, Update
+from telegram.ext import Dispatcher, CommandHandler, MessageHandler, Filters
+
+from utils import process_ticket_file
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
+bot = Bot(token=TOKEN)
 
-logging.basicConfig(level=logging.INFO)
+# Включаем логирование
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Бот запущен. Отправьте PDF файл билета.")
+# Flask-приложение
+app = Flask(__name__)
 
-async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+# Dispatcher и обработчики
+dispatcher = Dispatcher(bot, None, workers=2, use_context=True)
+
+def start(update, context):
+    update.message.reply_text("Бот запущен. Пришлите PDF файл с билетом.")
+
+def handle_file(update, context):
     file = update.message.document
-    if file.mime_type == "application/pdf":
-        file_path = await file.get_file()
-        local_path = await file_path.download_to_drive()
-        logger.info(f"Получен PDF: {local_path}")
-        success = process_ticket_file(local_path, SPREADSHEET_ID)
-        await update.message.reply_text("Файл обработан." if success else "Ошибка при обработке файла.")
+    if file and file.file_name.endswith(".pdf"):
+        file_path = file.get_file().download()
+        result = process_ticket_file(file_path, SPREADSHEET_ID)
+        if result:
+            update.message.reply_text("Файл обработан и добавлен в таблицу.")
+        else:
+            update.message.reply_text("Ошибка при обработке файла.")
     else:
-        await update.message.reply_text("Пожалуйста, отправьте PDF файл.")
+        update.message.reply_text("Пожалуйста, отправьте PDF файл.")
 
-def main():
-    app = ApplicationBuilder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.Document.PDF, handle_file))
-    app.run_polling()
+# Регистрируем хендлеры
+dispatcher.add_handler(CommandHandler("start", start))
+dispatcher.add_handler(MessageHandler(Filters.document.pdf, handle_file))
 
-if __name__ == "__main__":
-    main()
+# Webhook маршрут
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    update = Update.de_json(request.get_json(force=True), bot)
+    dispatcher.process_update(update)
+    return "ok"
+
+# Корневая страница (опционально)
+@app.route('/')
+def index():
+    return "Бот работает!"
+
+# Запуск приложения на Render
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)
