@@ -1,57 +1,57 @@
 import os
 import logging
 from flask import Flask, request
-from telegram import Bot, Update
-from telegram.ext import Dispatcher, CommandHandler, MessageHandler, Filters
+from telegram import Update, Bot
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
 from utils import process_ticket_file
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
+
 bot = Bot(token=TOKEN)
+application = Application.builder().token(TOKEN).build()
 
-# Включаем логирование
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-# Flask-приложение
-app = Flask(__name__)
+# Обработчики
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Бот запущен. Отправьте PDF билет.")
 
-# Dispatcher и обработчики
-dispatcher = Dispatcher(bot, None, workers=2, use_context=True)
-
-def start(update, context):
-    update.message.reply_text("Бот запущен. Пришлите PDF файл с билетом.")
-
-def handle_file(update, context):
+async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file = update.message.document
-    if file and file.file_name.endswith(".pdf"):
-        file_path = file.get_file().download()
-        result = process_ticket_file(file_path, SPREADSHEET_ID)
-        if result:
-            update.message.reply_text("Файл обработан и добавлен в таблицу.")
-        else:
-            update.message.reply_text("Ошибка при обработке файла.")
+    if file.mime_type == "application/pdf":
+        tg_file = await file.get_file()
+        path = f"/tmp/{file.file_name}"
+        await tg_file.download_to_drive(path)
+
+        result = process_ticket_file(path, SPREADSHEET_ID)
+        msg = "✅ Файл обработан и добавлен в таблицу." if result else "❌ Ошибка при обработке файла."
+        await update.message.reply_text(msg)
     else:
-        update.message.reply_text("Пожалуйста, отправьте PDF файл.")
+        await update.message.reply_text("Отправьте, пожалуйста, PDF файл.")
 
-# Регистрируем хендлеры
-dispatcher.add_handler(CommandHandler("start", start))
-dispatcher.add_handler(MessageHandler(Filters.document.pdf, handle_file))
+application.add_handler(CommandHandler("start", start))
+application.add_handler(MessageHandler(filters.Document.PDF, handle_file))
 
-# Webhook маршрут
-@app.route('/webhook', methods=['POST'])
-def webhook():
+# Flask Webhook
+flask_app = Flask(__name__)
+
+@flask_app.route("/")
+def index():
+    return "Бот работает."
+
+@flask_app.route("/webhook", methods=["POST"])
+async def webhook():
     update = Update.de_json(request.get_json(force=True), bot)
-    dispatcher.process_update(update)
+    await application.process_update(update)
     return "ok"
 
-# Корневая страница (опционально)
-@app.route('/')
-def index():
-    return "Бот работает!"
-
-# Запуск приложения на Render
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 10000))
-    app.run(host='0.0.0.0', port=port)
+if __name__ == "__main__":
+    PORT = int(os.environ.get("PORT", 10000))
+    application.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        webhook_url=f"https://expense-bot-1.onrender.com/webhook",
+        flask_app=flask_app
+    )
